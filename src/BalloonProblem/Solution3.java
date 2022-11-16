@@ -3,10 +3,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.io.*;
 
 public class Solution3 {
 
-public int solution(){
+public int solution()  {
     int iterations;
     int div;
 
