@@ -1,140 +1,163 @@
 package BalloonProblem;
+
+import BalloonProblem.contracts.ISolution;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.VisibleForTesting;
+
 import java.util.*;
 import java.io.*;
 
 public class Solution4 {
 
-    public int solution()  {
-        int iterations=0;
-        int div;
+    String fileLocation = "C:\\Users\\jovanovicm\\IdeaProjects\\ExceptionsPractice\\src\\BalloonProblem\\Input.txt";
+    fileReadWrite file;
+    public void setFileLocation(String newFileLocation) {
+        fileLocation = newFileLocation;
+    }
 
 
+    public int solution(String inputWord) {
+        int iterations = 0;
+        int total_iterations = 0;
+        HashMap<Character, Integer> inputWordChars;
+        HashMap<Character, Integer> charCount;
+        List<Integer> divList = new ArrayList<Integer>();
+        List<Character> divListChar = new ArrayList<Character>();
 
-        HashMap<Character, Integer> inputWordChars= new     HashMap<Character, Integer>();
-        HashMap<Character, Integer> charCount= new     HashMap<Character, Integer>();
-        List<Integer> divList= new ArrayList<Integer>();
-        List<Character> divListChar= new ArrayList<Character>();
-        // String inputText="BALLOOOOOasdksaldkaskldsaNNNNNBALLOON BALLOON BALLOON, BALLOON.,BALLOON,BALLOON,BALLOONBALLOONBALLBALLOONOON";
-        //  String inputWord="as";
 
-        //  inputWordChars=traverseString(inputWord,inputWordChars);
+        inputWordChars = traverseString(inputWord);
 
-        BufferedReader reader;
+
         try {
-            reader = new BufferedReader(new FileReader(
-                    "C:\\Users\\jovanovicm\\IdeaProjects\\ExceptionsPractice\\src\\BalloonProblem\\Input.txt"));
-           // reader=null;
-            if(reader==null){
-                throw  new RuntimeException("Problem creating buffered reader");
-            }
+            file =new fileReadWrite();
+            BufferedReader reader =file.creatingReader(fileLocation);
 
-            final String firstLine = reader.readLine();
-            if(firstLine == null){
-                throw  new RuntimeException("First line of document is null");
-            }
-            if(firstLine.isEmpty()){
-                throw  new RuntimeException("First line of document is empty");
-            }
-            if(firstLine.isBlank()){
-                throw  new RuntimeException("First line of document is Blank");
-            }
-            inputWordChars=traverseString(firstLine,inputWordChars);
-
-            int row=1;
+            boolean isValid;
+            int row = 1;
             String line = reader.readLine();
-            while (line!=null) {
+            while (line != null) {
 
                 System.out.println(line);
-                if(line == null){
-                    throw  new RuntimeException("Line "+row+" of the document is null");
-                }
-                if(line.isEmpty()){
-                    throw  new RuntimeException("Line "+row+" of the document is empty");
-                }
-                if(line.isBlank()){
-                    throw  new RuntimeException("Line "+row+" of the document is Blank");
-                }
-                charCount=traverseString(line,charCount);
-
-                System.out.println("Character count of the input word "+inputWordChars);
-                System.out.println("Character count of the input text "+charCount);
-                for (char k:inputWordChars.keySet()) {
-
-                    if(charCount.get(k)!=null){
-                        System.out.println("Present character " + k);
-                        div=charCount.get(k)/inputWordChars.get(k);
-                        if(div<1){ System.out.println("Not enough character " + k);
-
-                            divList.add(div);
-                            divListChar.add(k);
-                            break;}
-                        else{
-                            divList.add(div);
-                            divListChar.add(k);
-                        }
-
-                    }
-                    else {
-                        System.out.println("Missing character "+ k + " in the text");
-
-                        iterations= 0;
-                    }
-
+                isValid = isValidString(line);
+                if (!isValid) {
+                    throw new InvalidStringException("The string in row " + row + " is not valid! \nThe program will not continue processing the file.");
                 }
 
-                System.out.println("List of divisions" + divList);
-                System.out.println("List of respective characters" +divListChar );
-                if(divList.isEmpty()){
-                    throw  new RuntimeException("List of divisions is empty");
-                }
-                Collections.sort(divList);
+                charCount = traverseString(line);
+                System.out.println("Character count of the input word " + inputWordChars);
+                System.out.println("Character count of the input text " + charCount);
+                iterations=(rowComparison(inputWordChars, charCount, divList, divListChar));
 
-                System.out.println("------------------------------------------------");
-                System.out.println("List of divisions after sorting " + divList);
-                iterations=divList.get(0);
-                System.out.println("Number of iterations for line " + row + " is "+ iterations);
+                total_iterations = total_iterations + iterations;
+                System.out.println("Number of iterations for line " + row + " is " + iterations);
                 System.out.println(":::::::::::::::::::::::::::::::::::::::::::::::::");
                 row++;
-                divList.clear();
-                divListChar.clear();
+                clear(charCount, divList, divListChar);
                 line = reader.readLine();
-                charCount.clear();
+
 
             }
             reader.close();
         } catch (IOException e) {
-
-            System.out.println("Exception");
+            System.out.println("IO Exception");
+            e.printStackTrace();
+        } catch (InvalidStringException | CreatingBufferedReaderException | EmptyListException e) {
+            System.out.println(e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("Null pointer");
             e.printStackTrace();
         }
-        catch (RuntimeException e){
-            System.out.println("Runtime exception");
-            System.out.println(e.getMessage());
-          //  e.printStackTrace();
+
+
+        return total_iterations;
+    }
+    @VisibleForTesting
+    public int rowComparison(HashMap<Character, Integer> inputWordChars, HashMap<Character, Integer> charCount,  List<Integer> divList, List<Character> divListChar) throws EmptyListException{
+        int div=0;
+
+        for (char k : inputWordChars.keySet()) {
+
+            if (charCount.get(k) != null) {
+                System.out.println("Present character " + k);
+                div = charCount.get(k) / inputWordChars.get(k);
+                if (div < 1) {
+                    System.out.println("Not enough character " + k);
+
+
+                    divListChar.add(k);
+
+                    divList.add(div);
+                    break;
+                } else {
+
+                    divListChar.add(k);
+                    divList.add(div);
+                }
+
+            } else {
+                System.out.println("Missing character " + k + " in the line");
+              divList.clear();
+              divListChar.clear();
+              div=0;
+              divList.add(div);
+
+            }
+
+        }
+        System.out.println("List of divisions" + divList);
+        System.out.println("List of respective characters" + divListChar);
+
+        if (divList.isEmpty()) {
+            throw new EmptyListException("List of divisions is empty");
         }
 
-
-        return iterations;
+        Collections.sort(divList);
+        System.out.println("------------------------------------------------");
+        System.out.println("List of divisions after sorting " + divList);
+        return divList.get(0);
     }
 
-    static HashMap<Character, Integer> traverseString(String str,HashMap<Character, Integer> hashmap)
-    {
+    private static void clear(HashMap<Character, Integer> charCount, List<Integer> divList, List<Character> divListChar) {
+        divList.clear();
+        divListChar.clear();
+        charCount.clear();
+    }
 
-        try {
-            char[] strArray = str.toCharArray();
-            char c;
-            // Traverse the string
-            for (int i = 0; i < strArray.length; i++) {
+    @VisibleForTesting
+    public boolean isValidString(String line) {
+        boolean isValid = false;
 
-                c= str.charAt(i);
-                if (hashmap.containsKey(c)) {   hashmap.put(c,hashmap.get(c)+1);    }
-                else {  hashmap.put(c,1); }
+        if (line!=null) {
+            isValid = true;
+
+        if (line.isEmpty()) {
+            isValid = false;
+        }
+        if (line.isBlank()) {
+            isValid = false;
+        }
+        }
+        return isValid;
+    }
+    @VisibleForTesting
+    public HashMap<Character, Integer> traverseString( String str) {
+        HashMap<Character, Integer> hashmap = new HashMap<Character, Integer>();
+
+        if(str!=null){
+        char[] strArray = str.toCharArray();
+        char c;
+        // Traverse the string
+        for (int i = 0; i < strArray.length; i++) {
+
+            c = str.charAt(i);
+            if (hashmap.containsKey(c)) {
+                hashmap.put(c, hashmap.get(c) + 1);
+            } else {
+                hashmap.put(c, 1);
             }
         }
-        catch(NullPointerException e) {
-            System.out.println("NullPointerException thrown!");
         }
-
 
         return hashmap;
     }

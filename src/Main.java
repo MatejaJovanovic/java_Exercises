@@ -16,10 +16,11 @@ public class Main {
         int num=0;
 
             Solution4 s = new Solution4();
-            num = s.solution();
+            s.setFileLocation("C:\\Users\\jovanovicm\\IdeaProjects\\ExceptionsPractice\\src\\BalloonProblem\\Input.txt");
+            num = s.solution("jkh");
 
 
-        System.out.println("Number of possible iterations is: " + num);
+        System.out.println("Number of total possible iterations is: " + num);
 
     }
 }

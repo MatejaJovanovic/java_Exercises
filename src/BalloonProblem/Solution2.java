@@ -13,7 +13,6 @@ public class Solution2 {
     int o_count = 0;
     int n_count = 0;
     int iterations=0;
-
     public int solution(String inputString) {
         List<Character> char_list = convertStringToCharList(inputString);
         for (char c : char_list) {
