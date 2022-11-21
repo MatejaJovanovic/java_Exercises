@@ -1,23 +1,12 @@
 package BalloonProblem;
-
-import BalloonProblem.contracts.ISolution;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
-
 import java.util.*;
 import java.io.*;
 
 public class Solution4 {
 
-    String fileLocation = "C:\\Users\\jovanovicm\\IdeaProjects\\ExceptionsPractice\\src\\BalloonProblem\\Input.txt";
-    fileReadWrite file;
-    public void setFileLocation(String newFileLocation) {
-        fileLocation = newFileLocation;
-    }
 
-
-    public int solution(String inputWord) {
+    public int solution(String inputWord, BufferedReader reader) {
         int iterations = 0;
         int total_iterations = 0;
         HashMap<Character, Integer> inputWordChars;
@@ -25,14 +14,12 @@ public class Solution4 {
         List<Integer> divList = new ArrayList<Integer>();
         List<Character> divListChar = new ArrayList<Character>();
 
-
         inputWordChars = traverseString(inputWord);
 
-
         try {
-            file =new fileReadWrite();
-            BufferedReader reader =file.creatingReader(fileLocation);
-
+            if(reader==null){
+                throw new  NullPointerException("Null pointer!");
+            }
             boolean isValid;
             int row = 1;
             String line = reader.readLine();
@@ -62,11 +49,12 @@ public class Solution4 {
         } catch (IOException e) {
             System.out.println("IO Exception");
             e.printStackTrace();
-        } catch (InvalidStringException | CreatingBufferedReaderException | EmptyListException e) {
-            System.out.println(e.getMessage());
-        } catch (NullPointerException e) {
+        } catch (InvalidStringException | EmptyListException e) {
+            System.out.println(e.getMessage());}
+         catch (NullPointerException e) {
             System.out.println("Null pointer");
-            e.printStackTrace();
+          //  e.getMessage();
+            //e.printStackTrace();
         }
 
 
@@ -95,7 +83,8 @@ public class Solution4 {
                     divList.add(div);
                 }
 
-            } else {
+            }
+            else {
                 System.out.println("Missing character " + k + " in the line");
               divList.clear();
               divListChar.clear();
@@ -117,8 +106,8 @@ public class Solution4 {
         System.out.println("List of divisions after sorting " + divList);
         return divList.get(0);
     }
-
-    private static void clear(HashMap<Character, Integer> charCount, List<Integer> divList, List<Character> divListChar) {
+    @VisibleForTesting
+    public void clear(HashMap<Character, Integer> charCount, List<Integer> divList, List<Character> divListChar) {
         divList.clear();
         divListChar.clear();
         charCount.clear();
@@ -129,11 +118,8 @@ public class Solution4 {
         boolean isValid = false;
 
         if (line!=null) {
-            isValid = true;
 
-        if (line.isEmpty()) {
-            isValid = false;
-        }
+            isValid = !line.isEmpty();
         if (line.isBlank()) {
             isValid = false;
         }
